@@ -12,16 +12,13 @@ import React, {useState, useEffect, useRef} from "react";
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
   Button,
   ActivityIndicator,
-  TouchableHighlight,
   Image,
   Linking,
-  useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
 import {Picker} from "@react-native-community/picker";
@@ -62,10 +59,12 @@ const Doggos = () => {
       setBreeds(breeds);
       let index = Math.floor(Math.random() * Object.keys(breeds).length);
       let breed = Object.keys(breeds)[index];
-      setSelection({
+      let newSel = {
         breed,
         subBreed: breeds[breed][0] ?? null,
-      });
+      };
+      console.log("newSel", newSel);
+      setSelection(newSel);
     })();
   }, []);
 
@@ -100,8 +99,12 @@ const Doggos = () => {
       console.log("Timeout triggering for ", url);
       timeout.current = null;
       f();
-    }, 500);
-  }, [selection.breed, selection.subBreed, seq]);
+    }, 200);
+  }, [seq]);
+
+  useEffect(() => {
+    setSeq((s) => s + 1);
+  }, [selection.breed, selection.subBreed]);
 
   if (!breeds) {
     return (
@@ -157,7 +160,10 @@ const Doggos = () => {
             selectedValue={selection.breed!}
             onValueChange={(b) => {
               console.log(`changing breed: ${b}`);
-              setSelection((old) => ({...old, breed: String(b)}));
+              setSelection((old) => ({
+                breed: String(b),
+                subBreed: breeds![b][0] ?? null,
+              }));
             }}>
             {Object.keys(breeds).map((value) => (
               <Picker.Item key={value} label={titleCase(value)} value={value} />
